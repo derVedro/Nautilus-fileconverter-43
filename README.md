@@ -1,37 +1,19 @@
 
 # nautilus-fileconverter
 
-A python script to extend Nautilus using nautilus-python.
-
-
+A python script to extend Nautilus using nautilus-python. There is a [nemo](https://github.com/derVedro/Nautilus-fileconverter-43/tree/nemo) branch as well.
 
 
 ## Features
-This programm can convert images, audio files and videos with the help of the default context menu in Nautilus. It works with a single Python script and has few depnendncy programms.
+This programm can convert images, audio files and videos with the help of the default context menu in Nautilus.
 
-### Supported image types (convert to)
-    - JPEG
-    - PNG
-    - BMP
-    - GIF
-    - WebP
-### Supported audio types (convert to)
-    - MP3
-    - WAV
-    - AAC
-    - FLAC
-    - M4A
-    - OGG
-    - OPUS
-### Supported video types (convert to)
-    - MP4
-    - WebM
-    - MKV
-    - AVI
-    - GIF (bad quality)
-    - MP3
-    - WAV
+It converts
+- image files to: __JPEG__, __PNG__, __BMP__, __GIF__, __WebP__
+- audio files to: __MP3__, __WAV__, __AAC__, __FLAC__, __M4A__, __OGG__, __OPUS__
+- video files to: __MP4__, __WebM__, __MKV__, __AVI__, __GIF__ (bad quality), __MP3__, __WAV__
+
 ## Install dependencies
+
 The extension has a few dependencies which have to be installed.
 ###
 [nautilus-python](https://github.com/GNOME/nautilus-python) needs to be installed to install extensions:
