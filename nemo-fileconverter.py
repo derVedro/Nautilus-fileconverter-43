@@ -1,4 +1,6 @@
-from gi.repository import Nautilus, GObject
+import gi
+gi.require_version('Nemo', '3.0')
+from gi.repository import Nemo, GObject
 from typing import List
 from PIL import Image
 from urllib.parse import urlparse, unquote
@@ -7,7 +9,7 @@ import os, shlex
 
 #print=lambda *wish, **verbosity: None    # comment it out, if you wish debug printing
 
-class FileConverterMenuProvider(GObject.GObject, Nautilus.MenuProvider):
+class FileConverterMenuProvider(GObject.GObject, Nemo.MenuProvider):
     READ_FORMATS_IMAGE = ('image/jpeg', 'image/png', 'image/bmp', 'application/postscript', 'image/gif',
                           'image/x-icon', 'image/x-pcx', 'image/x-portable-pixmap', 'image/tiff', 'image/x-xbm',
                           'image/x-xbitmap', 'video/fli', 'image/vnd.fpx', 'image/vnd.net-fpx',
@@ -40,7 +42,8 @@ class FileConverterMenuProvider(GObject.GObject, Nautilus.MenuProvider):
                            {'name': 'WAV', 'mimes': ['audio/x-wav']}]
 
 
-    def get_file_items(self, files) -> List[Nautilus.MenuItem]:
+    def get_file_items(self, *args) -> List[Nemo.MenuItem]:
+        files = args[-1]
         for file in files:
             print(file.get_mime_type())
             file_mime = file.get_mime_type()
@@ -59,14 +62,14 @@ class FileConverterMenuProvider(GObject.GObject, Nautilus.MenuProvider):
 
 
     def __submenu_builder(self, formats, callback, files):
-        top_menuitem = Nautilus.MenuItem(
+        top_menuitem = Nemo.MenuItem(
             name="FileConverterMenuProvider::convert_to",
             label="Convert to...",
         )
-        submenu = Nautilus.Menu()
+        submenu = Nemo.Menu()
         top_menuitem.set_submenu(submenu)
         for format in formats:
-            sub_menuitem = Nautilus.MenuItem(
+            sub_menuitem = Nemo.MenuItem(
                 name='ConvertToSubmenu_' + format['name'],
                 label=(format['name']),
             )
