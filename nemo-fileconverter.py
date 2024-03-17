@@ -2,44 +2,84 @@ import gi
 gi.require_version('Nemo', '3.0')
 from gi.repository import Nemo, GObject
 from typing import List
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from urllib.parse import urlparse, unquote
 from pathlib import Path
 import os, shlex
 
-#print=lambda *wish, **verbosity: None    # comment it out, if you wish debug printing
+print = lambda *wish, **verbosity: None    # comment it out, if you wish debug printing
 
 class FileConverterMenuProvider(GObject.GObject, Nemo.MenuProvider):
-    READ_FORMATS_IMAGE = ('image/jpeg', 'image/png', 'image/bmp', 'application/postscript', 'image/gif',
-                          'image/x-icon', 'image/x-pcx', 'image/x-portable-pixmap', 'image/tiff', 'image/x-xbm',
-                          'image/x-xbitmap', 'video/fli', 'image/vnd.fpx', 'image/vnd.net-fpx',
-                          'application/octet-stream', 'windows/metafile', 'image/x-xpixmap', 'image/webp')
-    READ_FORMATS_AUDIO = ('audio/mpeg', 'audio/mpeg3', 'video/x-mpeg', 'audio/x-mpeg-3',
-                          'audio/x-wav', 'audio/wav', 'audio/wave', 'audio/x-pn-wave', 'audio/vnd.wave', 'audio/x-mpegurl',
-                          'audio/mp4', 'audio/mp4a-latm', 'audio/mpeg4-generic', 'audio/x-matroska',
-                          'audio/aac', 'audio/aacp', 'audio/3gpp', 'audio/3gpp2', 'audio/ogg', 'audio/opus',
-                          'audio/flac', 'audio/x-vorbis+ogg')
-    READ_FORMATS_VIDEO = ('video/mp4', 'video/webm', 'video/x-matroska', 'video/avi', 'video/msvideo',
+    READ_FORMATS_IMAGE = ('image/jpeg',
+                          'image/png',
+                          'image/bmp',
+                          'application/postscript',
+                          'image/gif',
+                          'image/x-icon',
+                          'image/x-pcx',
+                          'image/x-portable-pixmap',
+                          'image/tiff',
+                          'image/x-xbm',
+                          'image/x-xbitmap',
+                          'video/fli',
+                          'image/vnd.fpx',
+                          'image/vnd.net-fpx',
+                          'application/octet-stream',
+                          'windows/metafile',
+                          'image/x-xpixmap',
+                          'image/webp')
+
+    READ_FORMATS_AUDIO = ('audio/mpeg',
+                          'audio/mpeg3',
+                          'video/x-mpeg',
+                          'audio/x-mpeg-3',
+                          'audio/x-wav',
+                          'audio/wav',
+                          'audio/wave',
+                          'audio/x-pn-wave',
+                          'audio/vnd.wave',
+                          'audio/x-mpegurl',
+                          'audio/mp4',
+                          'audio/mp4a-latm',
+                          'audio/mpeg4-generic',
+                          'audio/x-matroska',
+                          'audio/aac',
+                          'audio/aacp',
+                          'audio/3gpp',
+                          'audio/3gpp2',
+                          'audio/ogg',
+                          'audio/opus',
+                          'audio/flac',
+                          'audio/x-vorbis+ogg')
+
+    READ_FORMATS_VIDEO = ('video/mp4',
+                          'video/webm',
+                          'video/x-matroska',
+                          'video/avi',
+                          'video/msvideo',
                           'video/x-msvideo')
-    WRITE_FORMATS_IMAGE = [{'name': 'JPEG', 'mimes': ['image/jpeg']},
-                           {'name': 'PNG', 'mimes': ['image/png']},
-                           {'name': 'BMP', 'mimes': ['image/bmp']},
-                           {'name': 'GIF', 'mimes': ['image/gif']},
-                           {'name': 'WebP', 'mimes': ['image/webp']}]
-    WRITE_FORMATS_AUDIO = [{'name': 'MP3', 'mimes': ['audio/mpeg', 'audio/mpeg3', 'video/x-mpeg', 'audio/x-mpeg-3']},
-                           {'name': 'WAV', 'mimes': ['audio/x-wav', 'audio/wav', 'audio/wave', 'audio/x-pn-wave', 'audio/vnd.wave']},
-                           {'name': 'AAC', 'mimes': ['audio/aac', 'audio/aacp', 'audio/3gpp', 'audio/3gpp2']},
-                           {'name': 'FLAC', 'mimes': ['audio/flac']},
-                           {'name': 'M4A', 'mimes': ['audio/mp4', 'audio/mp4a-latm', 'audio/mpeg4-generic']},
-                           {'name': 'OGG', 'mimes': ['audio/ogg']},
-                           {'name': 'OPUS', 'mimes': ['audio/opus']}]
-    WRITE_FORMATS_VIDEO = [{'name': 'MP4', 'mimes': ['video/mp4']},
-                           {'name': 'WebM', 'mimes': ['video/webm']},
-                           {'name': 'MKV', 'mimes': ['video/x-matroska']},
-                           {'name': 'AVI', 'mimes': ['video/avi', 'video/msvideo', 'video/x-msvideo']},
-                           {'name': 'GIF', 'mimes': ['image/gif']},
-                           {'name': 'MP3', 'mimes': ['audio/mpeg3']},
-                           {'name': 'WAV', 'mimes': ['audio/x-wav']}]
+
+    WRITE_FORMATS_IMAGE = [{'name': 'JPEG', 'extension': 'jpg'},
+                           {'name': 'PNG'},
+                           {'name': 'BMP'},
+                           {'name': 'GIF'},
+                           {'name': 'WebP'}]
+
+    WRITE_FORMATS_AUDIO = [{'name': 'MP3'},
+                           {'name': 'WAV'},
+                           {'name': 'AAC'},
+                           {'name': 'FLAC'},
+                           {'name': 'M4A'},
+                           {'name': 'OGG'},
+                           {'name': 'OPUS'}]
+
+    WRITE_FORMATS_VIDEO = [{'name': 'MP4'},
+                           {'name': 'WebM'},
+                           {'name': 'MKV'},
+                           {'name': 'AVI'},
+                           {'name': 'GIF'},
+                           {'name': 'MP3'},
+                           {'name': 'WAV'}]
 
 
     def get_file_items(self, *args) -> List[Nemo.MenuItem]:
@@ -78,23 +118,33 @@ class FileConverterMenuProvider(GObject.GObject, Nemo.MenuProvider):
         return [top_menuitem]
 
 
-    def convert_image(self, menu, mime_output, files):
-        print(mime_output)
+    def __get_extension(self, format):
+        return f".{format.get('extension', format['name'])}".lower()
+
+
+    def convert_image(self, menu, format, files):
+        print(format)
         for file in files:
             file_path = Path(unquote(urlparse(file.get_uri()).path))
-            image = Image.open(file_path)
-            if (mime_output['name']) == 'JPEG':
-                image = image.convert('RGB')
-            image.save(file_path.with_suffix('.' + mime_output['name'].lower()),
-                       format=(mime_output['name']))
-    def convert_audio(self, menu, mime_output, files):
-        print(mime_output)
+            try:
+                image = Image.open(file_path)
+                if format['name'] == 'JPEG':
+                    image = image.convert('RGB')
+                image.save(file_path.with_suffix(self.__get_extension(format)),
+                           format=(format['name']))
+            except UnidentifiedImageError:
+                pass
+
+
+    def convert_audio(self, menu, format, files):
+        print(format)
         for file in files:
             from_file_path = Path(unquote(urlparse(file.get_uri()).path))
-            to_file_path = from_file_path.with_suffix(
-                f".{mime_output['name']}")
+            to_file_path = from_file_path.with_suffix(self.__get_extension(format))
             os.system(
                 f"nohup ffmpeg -i {shlex.quote(str(from_file_path))} -strict experimental {shlex.quote(str(to_file_path))} | tee &")
-    def convert_video(self, menu, mime_output, files):
+
+
+    def convert_video(self, menu, format, files):
         # use same ffmpeg backend
-        self.convert_audio(menu, mime_output, files)
+        self.convert_audio(menu, format, files)
