@@ -5,7 +5,6 @@ from urllib.parse import urlparse, unquote
 from pathlib import Path
 import os, shlex
 
-print = lambda *wish, **verbosity: None    # comment it out, if you wish debug printing
 
 class FileConverterMenuProvider(GObject.GObject, Nautilus.MenuProvider):
     READ_FORMATS_IMAGE = ('image/jpeg',
@@ -83,7 +82,6 @@ class FileConverterMenuProvider(GObject.GObject, Nautilus.MenuProvider):
     def get_file_items(self, *args) -> List[Nautilus.MenuItem]:
         files = args[-1]            # legacy support for stuff earlier than G43
         for file in files:
-            print(file.get_mime_type())
             file_mime = file.get_mime_type()
             if file_mime in self.READ_FORMATS_IMAGE:
                 return self.__submenu_builder(self.WRITE_FORMATS_IMAGE,
@@ -121,7 +119,6 @@ class FileConverterMenuProvider(GObject.GObject, Nautilus.MenuProvider):
 
 
     def convert_image(self, menu, format, files):
-        print(format)
         for file in files:
             file_path = Path(unquote(urlparse(file.get_uri()).path))
             try:
@@ -135,7 +132,6 @@ class FileConverterMenuProvider(GObject.GObject, Nautilus.MenuProvider):
 
 
     def convert_audio(self, menu, format, files):
-        print(format)
         for file in files:
             from_file_path = Path(unquote(urlparse(file.get_uri()).path))
             to_file_path = from_file_path.with_suffix(self.__get_extension(format))
